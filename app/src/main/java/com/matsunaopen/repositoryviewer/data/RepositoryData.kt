@@ -7,5 +7,7 @@ import java.io.Serializable
  */
 data class RepositoryData(
         val name: String,
-        val url: String
+        val url: String,
+        val readmeUrl: String,
+        val id: Long
 ) : Serializable

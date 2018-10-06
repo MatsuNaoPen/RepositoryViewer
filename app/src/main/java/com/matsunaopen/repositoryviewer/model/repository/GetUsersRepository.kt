@@ -1,8 +1,8 @@
 package com.matsunaopen.repositoryviewer.model.repository
 
+import android.support.annotation.VisibleForTesting
 import android.util.Log
 import com.matsunaopen.repositoryviewer.data.RepositoryData
-import com.matsunaopen.repositoryviewer.data.RepositoryDataList
 import com.matsunaopen.repositoryviewer.model.GetRepositoryService
 import com.matsunaopen.repositoryviewer.model.response.ResponseGetRepos
 import com.squareup.moshi.Moshi
@@ -18,13 +18,12 @@ import rx.schedulers.Schedulers
  * Created by DevUser on 2018/10/06.
  */
 class GetUsersRepository {
-    fun getUsersRepository(userName: String, observable: Observer<RepositoryDataList>) {
+    fun getUsersRepository(userName: String, observable: Observer<List<RepositoryData>>) {
         client().schedule(userName)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(object : Subscriber<List<ResponseGetRepos>>() {
                     override fun onCompleted() {
                         // NOP
-
                     }
 
                     override fun onNext(r: List<ResponseGetRepos>?) {
@@ -35,14 +34,34 @@ class GetUsersRepository {
 
                     override fun onError(e: Throwable?) {
                         val errorText = e?.message ?: "unknown"
-
                         Log.d("test", "error:" + errorText)
                     }
                 })
     }
 
-    fun convert(result: List<ResponseGetRepos>): RepositoryDataList =
-            RepositoryDataList(result.map { RepositoryData(it.name, it.html_url) })
+    fun convert(result: List<ResponseGetRepos>): List<RepositoryData> {
+        val list = mutableListOf<RepositoryData>()
+        result.forEach {
+            val data = RepositoryData(
+                    it.name,
+                    it.html_url,
+                    getReadmeUrl(it.html_url),
+                    it.id
+            )
+            list.add(data)
+        }
+        return list
+    }
+
+    @VisibleForTesting
+    fun getReadmeUrl(url: String): String {
+        return if (url.contains("https://github.com")) {
+            url + "/blob/master/README.md"
+        } else {
+            url
+        }
+    }
+
 
     private fun client(): GetRepositoryService {
         val moshi = Moshi.Builder().build()

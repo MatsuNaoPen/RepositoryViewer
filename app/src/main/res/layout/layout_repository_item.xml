@@ -6,15 +6,22 @@
         <variable
             name="data"
             type="com.matsunaopen.repositoryviewer.data.RepositoryData" />
+
+        <variable
+            name="callback"
+            type="com.matsunaopen.repositoryviewer.view.RepositoryActivity.RepositoryUpdateCallback" />
     </data>
 
     <LinearLayout
+        android:id="@+id/repository_item"
         android:layout_width="match_parent"
-        android:layout_height="30dp">
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> callback.onClickRepository(data.readmeUrl)}">
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
             android:text="@{data.name}" />
     </LinearLayout>
 
