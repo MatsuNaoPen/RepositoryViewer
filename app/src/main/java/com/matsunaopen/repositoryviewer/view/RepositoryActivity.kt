@@ -1,5 +1,6 @@
 package com.matsunaopen.repositoryviewer.view
 
+import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -13,6 +14,8 @@ import com.matsunaopen.repositoryviewer.preference.ConstValues
 import com.matsunaopen.repositoryviewer.preference.PreferenceUtils
 import com.matsunaopen.repositoryviewer.viewmodel.RepositoryViewModel
 import kotlinx.android.synthetic.main.activity_select_user.*
+import android.net.ConnectivityManager
+import android.support.design.widget.Snackbar
 
 class RepositoryActivity : BaseActivity() {
     lateinit var displayController: DisplayAreaController
@@ -43,7 +46,6 @@ class RepositoryActivity : BaseActivity() {
         }
     }
 
-
     // TODO RecyclerViewにDataBindingで更新データ渡しがしたい
     interface RepositoryUpdateCallback {
         fun updateRepository(userName: String, data: List<RepositoryData>)
@@ -53,12 +55,16 @@ class RepositoryActivity : BaseActivity() {
 
     private fun getRepositoryCallback(): RepositoryUpdateCallback = object : RepositoryUpdateCallback {
         override fun onClickRepository(url: String) {
-            val dialog = RepositoryDialog()
-            val args = Bundle()
-            args.putString(dialog.URL_KEY, url)
-            dialog.arguments = args
-            dialog.show(fragmentManager, "repositoryDialog")
-            Log.d("test", "url:" + url)
+            if(!netWorkCheck(applicationContext)){
+                showSnackBar()
+            }else{
+                val dialog = RepositoryDialog()
+                val args = Bundle()
+                args.putString(dialog.URL_KEY, url)
+                dialog.arguments = args
+                dialog.show(fragmentManager, "repositoryDialog")
+                Log.d("test", "url:" + url)
+            }
         }
 
         override fun updateRepository(userName: String, data: List<RepositoryData>) {
@@ -67,6 +73,17 @@ class RepositoryActivity : BaseActivity() {
     }
 
     private fun isMock(): Boolean = PreferenceUtils.getBoolean(this, ConstValues.IS_MOCH_KEY)
+
+    // ネットワーク接続確認
+    fun netWorkCheck(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val info = cm.activeNetworkInfo
+        return info?.isConnected ?: false
+    }
+
+    fun showSnackBar(){
+        Snackbar.make(this.currentFocus, "network not connected", Snackbar.LENGTH_SHORT).show()
+    }
 }
 
 
