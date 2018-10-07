@@ -8,8 +8,10 @@ import com.matsunaopen.repositoryviewer.model.repository.IGetUsersRepository
  * Created by DevUser on 2018/10/07.
  */
 object GetUsersRepositoryFactory {
-    fun calling(type: Int): IGetUsersRepository {
-//        return GetUsersRepository()
-        return GetUsersRepositoryMock()
-    }
+    fun calling(isMock: Boolean): IGetUsersRepository =
+            if (isMock) {
+                GetUsersRepositoryMock()
+            } else {
+                GetUsersRepository()
+            }
 }

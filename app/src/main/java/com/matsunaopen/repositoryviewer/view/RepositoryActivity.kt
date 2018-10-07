@@ -9,10 +9,12 @@ import com.matsunaopen.repositoryviewer.DisplayAreaController
 import com.matsunaopen.repositoryviewer.R
 import com.matsunaopen.repositoryviewer.data.RepositoryData
 import com.matsunaopen.repositoryviewer.databinding.ActivitySelectUserBinding
+import com.matsunaopen.repositoryviewer.preference.ConstValues
+import com.matsunaopen.repositoryviewer.preference.PreferenceUtils
 import com.matsunaopen.repositoryviewer.viewmodel.RepositoryViewModel
 import kotlinx.android.synthetic.main.activity_select_user.*
 
-class RepositoryActivity : AppCompatActivity() {
+class RepositoryActivity : BaseActivity() {
     lateinit var displayController: DisplayAreaController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +22,7 @@ class RepositoryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_select_user)
 
         val binding = DataBindingUtil.setContentView<ActivitySelectUserBinding>(this, R.layout.activity_select_user)
-        binding.viewModel = RepositoryViewModel(getRepositoryCallback())
+        binding.viewModel = RepositoryViewModel(isMock(), getRepositoryCallback())
 
         displayController = DisplayAreaController(getRepositoryCallback())
         binding.showAreaRepository.apply {
@@ -40,6 +42,7 @@ class RepositoryActivity : AppCompatActivity() {
             setAdapter(adapter)
         }
     }
+
 
     // TODO RecyclerViewにDataBindingで更新データ渡しがしたい
     interface RepositoryUpdateCallback {
@@ -62,6 +65,8 @@ class RepositoryActivity : AppCompatActivity() {
             displayController.setData(userName, data)
         }
     }
+
+    private fun isMock(): Boolean = PreferenceUtils.getBoolean(this, ConstValues.IS_MOCH_KEY)
 }
 
 

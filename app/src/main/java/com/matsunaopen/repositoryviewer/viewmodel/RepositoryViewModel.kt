@@ -14,17 +14,18 @@ import rx.Observer
 /**
  * Created by DevUser on 2018/10/05.
  */
-class RepositoryViewModel(val callback: RepositoryActivity.RepositoryUpdateCallback) {
+class RepositoryViewModel(val isMock: Boolean, val callback: RepositoryActivity.RepositoryUpdateCallback) {
     var userName = ObservableField<String>("")
     var resultField = ObservableField<List<RepositoryData>>(listOf())
 
     private val getRepositoryFactory = Kodein {
-        bind<IGetUsersRepository>() with factory { type: Int -> GetUsersRepositoryFactory.calling(type) }
+        bind<IGetUsersRepository>() with factory { isMock: Boolean -> GetUsersRepositoryFactory.calling(isMock) }
     }
 
     fun tapStart() {
         if (userName.get().isNotBlank()) {
-            getRepositoryFactory.factory<Int, IGetUsersRepository>().invoke(1).getUsersRepository(userName.get(), getUserNameObserver())
+            // コンストラクタでisMockの取得を行っているため、タップ時のステータスが正しく反映されない
+            getRepositoryFactory.factory<Boolean, IGetUsersRepository>().invoke(isMock).getUsersRepository(userName.get(), getUserNameObserver())
         } else {
             Log.d("test", "userName is Blank")
         }

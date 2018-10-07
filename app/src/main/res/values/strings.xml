@@ -6,4 +6,9 @@
     <string name="hint_input_user_name_text">Input target user name.</string>
     <string name="button_web_view_close_text">close</string>
     <string name="please_input_user_name_text">↑ Please input user name. ↑</string>
+
+    <!-- setting-->
+    <string name="setting_clear_db">clearDB</string>
+    <string name="setting_mock_state_on">mock:ON</string>
+    <string name="setting_mock_state_off">mock:OFF</string>
 </resources>
