@@ -48,6 +48,9 @@ dependencies {
     compile 'com.airbnb.android:epoxy:2.7.3'
     kapt 'com.airbnb.android:epoxy-processor:2.7.3'
     compile 'com.airbnb.android:epoxy-databinding:2.7.3'
+    // kodein
+    implementation 'com.github.salomonbrys.kodein:kodein:4.1.0'
+    implementation 'com.github.salomonbrys.kodein:kodein-android:4.1.0'
 }
 kapt {
     correctErrorTypes = true

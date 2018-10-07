@@ -17,8 +17,8 @@ import rx.schedulers.Schedulers
 /**
  * Created by DevUser on 2018/10/06.
  */
-class GetUsersRepository {
-    fun getUsersRepository(userName: String, observable: Observer<List<RepositoryData>>) {
+class GetUsersRepository : IGetUsersRepository {
+    override fun getUsersRepository(userName: String, observable: Observer<List<RepositoryData>>) {
         client().schedule(userName)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(object : Subscriber<List<ResponseGetRepos>>() {

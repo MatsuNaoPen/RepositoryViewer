@@ -1,11 +1,13 @@
 package com.matsunaopen.repositoryviewer.viewmodel
 
-import android.databinding.Bindable
 import android.databinding.ObservableField
-import android.databinding.ViewDataBinding
 import android.util.Log
+import com.github.salomonbrys.kodein.Kodein
+import com.github.salomonbrys.kodein.bind
+import com.github.salomonbrys.kodein.factory
 import com.matsunaopen.repositoryviewer.data.RepositoryData
-import com.matsunaopen.repositoryviewer.model.repository.GetUsersRepository
+import com.matsunaopen.repositoryviewer.di.GetUsersRepositoryFactory
+import com.matsunaopen.repositoryviewer.model.repository.IGetUsersRepository
 import com.matsunaopen.repositoryviewer.view.RepositoryActivity
 import rx.Observer
 
@@ -16,10 +18,13 @@ class RepositoryViewModel(val callback: RepositoryActivity.RepositoryUpdateCallb
     var userName = ObservableField<String>("")
     var resultField = ObservableField<List<RepositoryData>>(listOf())
 
-    private val getUserRepository = GetUsersRepository()
+    private val getRepositoryFactory = Kodein {
+        bind<IGetUsersRepository>() with factory { type: Int -> GetUsersRepositoryFactory.calling(type) }
+    }
+
     fun tapStart() {
         if (userName.get().isNotBlank()) {
-            getUserRepository.getUsersRepository(userName.get(), getUserNameObserver())
+            getRepositoryFactory.factory<Int, IGetUsersRepository>().invoke(1).getUsersRepository(userName.get(), getUserNameObserver())
         } else {
             Log.d("test", "userName is Blank")
         }
