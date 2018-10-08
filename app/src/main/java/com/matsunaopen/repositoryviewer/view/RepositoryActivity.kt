@@ -1,21 +1,17 @@
 package com.matsunaopen.repositoryviewer.view
 
-import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.ArrayAdapter
 import com.matsunaopen.repositoryviewer.DisplayAreaController
 import com.matsunaopen.repositoryviewer.R
 import com.matsunaopen.repositoryviewer.data.RepositoryData
 import com.matsunaopen.repositoryviewer.databinding.ActivitySelectUserBinding
-import com.matsunaopen.repositoryviewer.preference.ConstValues
-import com.matsunaopen.repositoryviewer.preference.PreferenceUtils
 import com.matsunaopen.repositoryviewer.viewmodel.RepositoryViewModel
 import kotlinx.android.synthetic.main.activity_select_user.*
-import android.net.ConnectivityManager
 import android.support.design.widget.Snackbar
+import com.matsunaopen.repositoryviewer.util.EnvironmentUtils
 
 class RepositoryActivity : BaseActivity() {
     lateinit var displayController: DisplayAreaController
@@ -25,7 +21,7 @@ class RepositoryActivity : BaseActivity() {
         setContentView(R.layout.activity_select_user)
 
         val binding = DataBindingUtil.setContentView<ActivitySelectUserBinding>(this, R.layout.activity_select_user)
-        binding.viewModel = RepositoryViewModel(isMock(), getRepositoryCallback())
+        binding.viewModel = RepositoryViewModel(this, getRepositoryCallback())
 
         displayController = DisplayAreaController(getRepositoryCallback())
         binding.showAreaRepository.apply {
@@ -55,15 +51,15 @@ class RepositoryActivity : BaseActivity() {
 
     private fun getRepositoryCallback(): RepositoryUpdateCallback = object : RepositoryUpdateCallback {
         override fun onClickRepository(url: String) {
-            if(!netWorkCheck(applicationContext)){
-                showSnackBar()
-            }else{
+            if (EnvironmentUtils().isNetworkEnable(applicationContext)) {
                 val dialog = RepositoryDialog()
                 val args = Bundle()
                 args.putString(dialog.URL_KEY, url)
                 dialog.arguments = args
                 dialog.show(fragmentManager, "repositoryDialog")
                 Log.d("test", "url:" + url)
+            } else {
+                showSnackBar()
             }
         }
 
@@ -72,16 +68,9 @@ class RepositoryActivity : BaseActivity() {
         }
     }
 
-    private fun isMock(): Boolean = PreferenceUtils.getBoolean(this, ConstValues.IS_MOCH_KEY)
 
-    // ネットワーク接続確認
-    fun netWorkCheck(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val info = cm.activeNetworkInfo
-        return info?.isConnected ?: false
-    }
 
-    fun showSnackBar(){
+    fun showSnackBar() {
         Snackbar.make(this.currentFocus, "network not connected", Snackbar.LENGTH_SHORT).show()
     }
 }

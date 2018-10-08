@@ -51,6 +51,8 @@ dependencies {
     // kodein
     implementation 'com.github.salomonbrys.kodein:kodein:4.1.0'
     implementation 'com.github.salomonbrys.kodein:kodein-android:4.1.0'
+    // Realm
+    apply plugin: "realm-android"
 }
 kapt {
     correctErrorTypes = true
