@@ -42,7 +42,11 @@ class RepositoryViewModel(private val context: Context, val callback: Repository
         }
 
         override fun onNext(t: List<RepositoryData>) {
-            callback.updateRepository(userName.get(), t)
+            val userName = when(getBehavior(context)){
+                GetUsersRepositoryFactory.Behavior.LOCAL -> userName.get() + "(pastData)"
+                else -> userName.get()
+            }
+            callback.updateRepository(userName, t)
         }
     }
 

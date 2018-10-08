@@ -68,8 +68,6 @@ class RepositoryActivity : BaseActivity() {
         }
     }
 
-
-
     fun showSnackBar() {
         Snackbar.make(this.currentFocus, "network not connected", Snackbar.LENGTH_SHORT).show()
     }

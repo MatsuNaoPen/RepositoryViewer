@@ -1,6 +1,5 @@
 package com.matsunaopen.repositoryviewer.model.repository
 
-import android.support.annotation.VisibleForTesting
 import android.util.Log
 import com.matsunaopen.repositoryviewer.data.RepositoryData
 import com.matsunaopen.repositoryviewer.db.RepositoryDao
@@ -18,7 +17,7 @@ import rx.schedulers.Schedulers
 /**
  * Created by DevUser on 2018/10/06.
  */
-class GetUsersRepository : IGetUsersRepository {
+class GetUsersRepositoryFromNetwork : IGetUsersRepository {
     override fun getUsersRepository(userName: String, observable: Observer<List<RepositoryData>>) {
         client().schedule(userName)
                 .subscribeOn(Schedulers.newThread())
@@ -38,7 +37,7 @@ class GetUsersRepository : IGetUsersRepository {
                         val errorText = e?.message ?: "unknown"
                         Log.d("test", "error:" + errorText)
                         // 失敗した場合はDBから取得しに行く
-                        loadFromDB(userName, observable)
+                        GetUsersRepositoryFromLocal().getUsersRepository(userName,observable)
                     }
                 })
     }
@@ -57,8 +56,7 @@ class GetUsersRepository : IGetUsersRepository {
         return list
     }
 
-    @VisibleForTesting
-    fun getReadmeUrl(url: String): String {
+    private fun getReadmeUrl(url: String): String {
         return if (url.contains("https://github.com")) {
             url + "/blob/master/README.md"
         } else {
@@ -82,14 +80,5 @@ class GetUsersRepository : IGetUsersRepository {
     private fun save(data: List<RepositoryData>) {
         val dao = RepositoryDao()
         dao.create(data)
-    }
-
-    private fun loadFromDB(userName: String, observable: Observer<List<RepositoryData>>) {
-        if (RepositoryDao().find(userName) > 0) {
-            val data = RepositoryDao().get(userName)
-            observable.onNext(data)
-        } else {
-            observable.onNext(emptyList())
-        }
     }
 }

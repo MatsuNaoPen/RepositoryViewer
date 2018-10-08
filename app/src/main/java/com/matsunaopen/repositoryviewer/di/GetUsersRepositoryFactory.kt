@@ -1,6 +1,7 @@
 package com.matsunaopen.repositoryviewer.di
 
-import com.matsunaopen.repositoryviewer.model.repository.GetUsersRepository
+import com.matsunaopen.repositoryviewer.model.repository.GetUsersRepositoryFromLocal
+import com.matsunaopen.repositoryviewer.model.repository.GetUsersRepositoryFromNetwork
 import com.matsunaopen.repositoryviewer.model.repository.GetUsersRepositoryMock
 import com.matsunaopen.repositoryviewer.model.repository.IGetUsersRepository
 
@@ -11,14 +12,14 @@ object GetUsersRepositoryFactory {
     fun calling(behavior: Behavior): IGetUsersRepository =
             when (behavior) {
                 Behavior.MOCK -> GetUsersRepositoryMock()
-                Behavior.DB -> GetUsersRepository()
-                Behavior.NETWORK -> GetUsersRepository()
+                Behavior.LOCAL -> GetUsersRepositoryFromLocal()
+                Behavior.NETWORK -> GetUsersRepositoryFromNetwork()
             }
 
     enum class Behavior {
         MOCK,
         NETWORK,
-        DB
+        LOCAL
     }
 
     fun getBehavior(isMock: Boolean, isNetworkConnected: Boolean): Behavior {
@@ -28,7 +29,7 @@ object GetUsersRepositoryFactory {
             if (isNetworkConnected) {
                 Behavior.NETWORK
             } else {
-                Behavior.DB
+                Behavior.LOCAL
             }
         }
     }
