@@ -1,5 +1,6 @@
 package com.matsunaopen.repositoryviewer.view
 
+import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,9 @@ import com.matsunaopen.repositoryviewer.databinding.ActivitySelectUserBinding
 import com.matsunaopen.repositoryviewer.viewmodel.RepositoryViewModel
 import kotlinx.android.synthetic.main.activity_select_user.*
 import android.support.design.widget.Snackbar
+import com.matsunaopen.repositoryviewer.RepositoryBehavior
+import com.matsunaopen.repositoryviewer.di.GetUsersRepositoryFactory
+import com.matsunaopen.repositoryviewer.model.repository.IGetUsersRepository
 import com.matsunaopen.repositoryviewer.util.EnvironmentUtils
 
 class RepositoryActivity : BaseActivity() {
@@ -21,7 +25,8 @@ class RepositoryActivity : BaseActivity() {
         setContentView(R.layout.activity_select_user)
 
         val binding = DataBindingUtil.setContentView<ActivitySelectUserBinding>(this, R.layout.activity_select_user)
-        binding.viewModel = RepositoryViewModel(this, getRepositoryCallback())
+        binding.viewModel = RepositoryViewModel(getBehavior(this), getRepositoryCallback(),
+                getGetUsersRepository(getBehavior(this)))
 
         displayController = DisplayAreaController(getRepositoryCallback())
         binding.showAreaRepository.apply {
@@ -49,6 +54,9 @@ class RepositoryActivity : BaseActivity() {
         fun onClickRepository(url: String)
     }
 
+    private fun getGetUsersRepository(behavior: RepositoryBehavior): IGetUsersRepository =
+            GetUsersRepositoryFactory.calling(behavior)
+
     private fun getRepositoryCallback(): RepositoryUpdateCallback = object : RepositoryUpdateCallback {
         override fun onClickRepository(url: String) {
             if (EnvironmentUtils().isNetworkEnable(applicationContext)) {
@@ -70,6 +78,12 @@ class RepositoryActivity : BaseActivity() {
 
     fun showSnackBar() {
         Snackbar.make(this.currentFocus, "network not connected", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun getBehavior(context: Context): RepositoryBehavior {
+        val isNetworkConnected = EnvironmentUtils().isNetworkEnable(context)
+        val isMock = EnvironmentUtils().isMock(context)
+        return RepositoryBehavior.getBehavior(isMock, isNetworkConnected)
     }
 }
 

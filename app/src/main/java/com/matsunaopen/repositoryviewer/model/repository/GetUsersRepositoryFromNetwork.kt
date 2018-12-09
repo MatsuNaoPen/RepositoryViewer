@@ -1,16 +1,17 @@
 package com.matsunaopen.repositoryviewer.model.repository
 
 import android.util.Log
+import com.matsunaopen.repositoryviewer.RepositoryBehavior
 import com.matsunaopen.repositoryviewer.data.RepositoryData
 import com.matsunaopen.repositoryviewer.db.RepositoryDao
 import com.matsunaopen.repositoryviewer.model.GetRepositoryService
 import com.matsunaopen.repositoryviewer.model.response.ResponseGetRepos
+import com.matsunaopen.repositoryviewer.view.RepositoryActivity
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import rx.Observer
 import rx.Subscriber
 import rx.schedulers.Schedulers
 
@@ -18,7 +19,9 @@ import rx.schedulers.Schedulers
  * Created by DevUser on 2018/10/06.
  */
 class GetUsersRepositoryFromNetwork : IGetUsersRepository {
-    override fun getUsersRepository(userName: String, observable: Observer<List<RepositoryData>>) {
+    override fun getUsersRepository(userName: String,
+                                    behavior: RepositoryBehavior,
+                                    callback: RepositoryActivity.RepositoryUpdateCallback) {
         client().schedule(userName)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(object : Subscriber<List<ResponseGetRepos>>() {
@@ -28,7 +31,7 @@ class GetUsersRepositoryFromNetwork : IGetUsersRepository {
 
                     override fun onNext(r: List<ResponseGetRepos>?) {
                         val result = convert(userName, r.orEmpty())
-                        observable.onNext(result)
+                        callback.updateRepository(userName, result)
                         save(result)
                         Log.d("test", result.toString())
                     }
@@ -37,7 +40,7 @@ class GetUsersRepositoryFromNetwork : IGetUsersRepository {
                         val errorText = e?.message ?: "unknown"
                         Log.d("test", "error:" + errorText)
                         // 失敗した場合はDBから取得しに行く
-                        GetUsersRepositoryFromLocal().getUsersRepository(userName,observable)
+                        GetUsersRepositoryFromLocal().getUsersRepository(userName, behavior, callback)
                     }
                 })
     }

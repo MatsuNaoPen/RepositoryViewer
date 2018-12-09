@@ -1,19 +1,22 @@
 package com.matsunaopen.repositoryviewer.model.repository
 
-import com.matsunaopen.repositoryviewer.data.RepositoryData
+import com.matsunaopen.repositoryviewer.RepositoryBehavior
 import com.matsunaopen.repositoryviewer.db.RepositoryDao
-import rx.Observer
+import com.matsunaopen.repositoryviewer.view.RepositoryActivity
 
 /**
  * Created by DevUser on 2018/10/06.
  */
 class GetUsersRepositoryFromLocal : IGetUsersRepository {
-    override fun getUsersRepository(userName: String, observable: Observer<List<RepositoryData>>) {
-        if (RepositoryDao().find(userName) > 0) {
-            val data = RepositoryDao().get(userName)
-            observable.onNext(data)
+    override fun getUsersRepository(userName: String,
+                                    behavior: RepositoryBehavior,
+                                    callback: RepositoryActivity.RepositoryUpdateCallback) {
+        val data = if (RepositoryDao().find(userName) > 0) {
+            RepositoryDao().get(userName)
         } else {
-            observable.onNext(emptyList())
+            emptyList()
         }
+
+        callback.updateRepository("$userName (pastData)", data)
     }
 }
